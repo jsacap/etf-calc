@@ -1,3 +1,4 @@
+streamlit
 yfinance
 plotly_express
 pandas==1.5.3

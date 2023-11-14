@@ -25,9 +25,14 @@ hide_footer_style = """
 .reportview-container .main footer {visibility: hidden;}    
 """
 st.markdown(hide_footer_style, unsafe_allow_html=True)
+if 'text_input_value' not in st.session_state:
+    st.session_state.text_input_value = ''
 
 st.write('Enter your ticker here')
-ticker = st.text_input('Enter ticker here')
+ticker = st.text_input('Enter ticker here', key='text_input',
+                       value=st.session_state.text_input_value)
+st.session_state.text_input_value = ticker
+
 tickers = [ticker.strip() for ticker in ticker.split(',')]
 
 

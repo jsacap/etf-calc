@@ -69,7 +69,6 @@ def calculate_return(tickers):
             ticker_dividends_df['Dividends'] = ticker_dividends_df['Dividends'].astype(
                 float)
             merged_data = pd.DataFrame()
-            print(type(merged_data))
 
             # Filtering dividend data to match the selected period
             ticker_dividends_df = ticker_dividends_df[(
@@ -102,14 +101,7 @@ def calculate_return(tickers):
             gain_dollars = round(end_value - initial_deposit, 2)
             percentage_gain = (gain_dollars / initial_deposit) * 100
 
-            # st.metrics for each ticker
-            st.subheader(f'{ticker.upper()}')
-            cl1, cl2, cl3, cl4 = st.columns(4)
-            cl1.metric(
-                f'Initial Investment', f'${initial_deposit:.0f}')
-            cl2.metric(f'Closing Balance', f'${end_value:.2f}')
-            cl3.metric(f'Gain ($)', f'${gain_dollars:.2f}')
-            cl4.metric(f'Gain (%)', f'{percentage_gain:.2f}%')
+            
 
             # Create a new column 'Daily_Close' to track the daily close
             ticker_download['Daily_Close'] = ticker_download['Close']
@@ -134,6 +126,52 @@ def calculate_return(tickers):
 
             fig = px.line(merged_data, x='Date', y=['Close', 'Daily_Close'], title='Your Investment Over Time',
                           color='ticker')
+
+            # Create a DataFrame to store investment values without DRP
+            investment_without_drp = merged_data.groupby('Date')['Close'].sum() * initial_share_purchase
+
+            # Create a DataFrame to store investment values without DRP
+            investment_without_drp_df = pd.DataFrame({
+                'Date': investment_without_drp.index,
+                'Investment Without DRP': investment_without_drp.values
+            })
+
+            # Calculate investment performance with and without DRP
+            investment_without_drp = merged_data.groupby('Date')['Close'].sum() * initial_share_purchase
+            investment_with_drp = merged_data.groupby('Date')['Daily_Close'].sum() * total_shares_purchased
+            
+            closing_without_drp = investment_without_drp.iloc[-1]
+            dollar_gain_without_drp = round(closing_without_drp - initial_deposit, 2)
+            percent_gain_wihtout_drp = dollar_gain_without_drp / initial_deposit * 100
+
+            # st.metrics for each ticker
+            st.subheader(f'{ticker.upper()}')
+            cl1, cl2, cl3, cl4 = st.columns(4)
+            cl1.metric(
+                f'Initial Investment', f'${initial_deposit:.0f}')
+            cl2.metric(f'Closing Balance', f'${end_value:.2f}', f'${closing_without_drp:.2f} (NO DRP)', delta_color='off')
+            cl3.metric(f'Gain ($)', f'${gain_dollars:.2f}', f'${dollar_gain_without_drp} (NO DRP)', delta_color='off')
+            cl4.metric(f'Gain (%)', f'{percentage_gain:.2f}%', f'{percent_gain_wihtout_drp:.2f}% (NO DRP)',delta_color='off')
+
+
+            # Add the investment without DRP to the DataFrame
+            investment_without_drp_df['Investment Without DRP'] = investment_without_drp.values
+
+            # Add the investment with DRP to the DataFrame
+            investment_without_drp_df['Investment With DRP'] = investment_with_drp.values
+
+            # Plot the comparison
+            fig_comparison = px.line(investment_without_drp_df, x='Date', y=['Investment Without DRP', 'Investment With DRP'],
+                                    labels={'value': 'Investment Value', 'variable': 'DRP'},
+                                    title=f'Investment Performance Comparison for {ticker.upper()} (with and without DRP)',
+                                    color_discrete_map={'Investment Without DRP': 'blue', 'Investment With DRP': 'orange'})
+
+            # Add legend and labels
+            fig_comparison.update_layout(legend_title_text='', xaxis_title='Date', yaxis_title='Investment Value ($)',
+                                        legend=dict(title='', orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
+
+            # Show the comparison plot
+            st.plotly_chart(fig_comparison)
             return fig, merged_data
         else:
             st.warning(
@@ -152,7 +190,6 @@ if st.button('Calculate'):
             fig, download_data = calculate_return(tickers)
 
             if fig is not None:
-                st.plotly_chart(fig)
                 st.balloons()
             # If data download is unsuccessful, display a message
             else:

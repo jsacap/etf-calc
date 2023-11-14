@@ -40,7 +40,7 @@ initial_deposit = st.number_input(
 
 def calculate_return(tickers):
     try:
-        merged_data = pd.DataFrame()
+        # merged_data = pd.DataFrame()
 
         for ticker in tickers:
             ticker_download = yf.download(
@@ -123,8 +123,8 @@ def calculate_return(tickers):
 
             # Append the data to the merged_data DataFrame
             ticker_download['ticker'] = ticker
-            merged_data = merged_data.append(ticker_download)
-
+            merged_data_list = [merged_data, ticker_download]
+            merged_data = pd.concat(merged_data_list, ignore_index=True)
         if not merged_data.empty:
 
             fig = px.line(merged_data, x='Date', y=['Close', 'Daily_Close'], title='Your Investment Over Time',

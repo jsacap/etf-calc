@@ -25,7 +25,7 @@ hide_footer_style = """
 .reportview-container .main footer {visibility: hidden;}    
 """
 st.markdown(hide_footer_style, unsafe_allow_html=True)
-blog_url = 'https://jsax-production.up.railway.app/blog/article/18/'
+blog_url = 'https://sanchojralegre.up.railway.app/marketblog/article/18'
 st.write(f"Check out our blog <a href='{blog_url}' target='_blank'>here</a>.", unsafe_allow_html=True)
 
 if 'text_input_value' not in st.session_state:

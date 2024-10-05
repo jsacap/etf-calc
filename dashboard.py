@@ -25,8 +25,9 @@ hide_footer_style = """
 .reportview-container .main footer {visibility: hidden;}    
 """
 st.markdown(hide_footer_style, unsafe_allow_html=True)
-blog_url = 'https://sanchojralegre.up.railway.app/marketblog/article/18'
-st.write(f"Check out our blog <a href='{blog_url}' target='_blank'>here</a>.", unsafe_allow_html=True)
+blog_url = 'https://sanchojralegre.com/projects/visualizing-the-power-of-dividend-reinvestment'
+st.write(
+    f"Check out our blog <a href='{blog_url}' target='_blank'>here</a>.", unsafe_allow_html=True)
 
 if 'text_input_value' not in st.session_state:
     st.session_state.text_input_value = ''
@@ -104,8 +105,6 @@ def calculate_return(tickers):
             gain_dollars = round(end_value - initial_deposit, 2)
             percentage_gain = (gain_dollars / initial_deposit) * 100
 
-            
-
             # Create a new column 'Daily_Close' to track the daily close
             ticker_download['Daily_Close'] = ticker_download['Close']
 
@@ -131,7 +130,8 @@ def calculate_return(tickers):
                           color='ticker')
 
             # Create a DataFrame to store investment values without DRP
-            investment_without_drp = merged_data.groupby('Date')['Close'].sum() * initial_share_purchase
+            investment_without_drp = merged_data.groupby(
+                'Date')['Close'].sum() * initial_share_purchase
 
             # Create a DataFrame to store investment values without DRP
             investment_without_drp_df = pd.DataFrame({
@@ -140,11 +140,14 @@ def calculate_return(tickers):
             })
 
             # Calculate investment performance with and without DRP
-            investment_without_drp = merged_data.groupby('Date')['Close'].sum() * initial_share_purchase
-            investment_with_drp = merged_data.groupby('Date')['Daily_Close'].sum() * total_shares_purchased
-            
+            investment_without_drp = merged_data.groupby(
+                'Date')['Close'].sum() * initial_share_purchase
+            investment_with_drp = merged_data.groupby(
+                'Date')['Daily_Close'].sum() * total_shares_purchased
+
             closing_without_drp = investment_without_drp.iloc[-1]
-            dollar_gain_without_drp = round(closing_without_drp - initial_deposit, 2)
+            dollar_gain_without_drp = round(
+                closing_without_drp - initial_deposit, 2)
             percent_gain_wihtout_drp = dollar_gain_without_drp / initial_deposit * 100
 
             # st.metrics for each ticker
@@ -152,10 +155,12 @@ def calculate_return(tickers):
             cl1, cl2, cl3, cl4 = st.columns(4)
             cl1.metric(
                 f'Initial Investment', f'${initial_deposit:.0f}')
-            cl2.metric(f'Closing Balance', f'${end_value:.2f}', f'${closing_without_drp:.2f} (NO DRP)', delta_color='off')
-            cl3.metric(f'Gain ($)', f'${gain_dollars:.2f}', f'${dollar_gain_without_drp} (NO DRP)', delta_color='off')
-            cl4.metric(f'Gain (%)', f'{percentage_gain:.2f}%', f'{percent_gain_wihtout_drp:.2f}% (NO DRP)',delta_color='off')
-
+            cl2.metric(f'Closing Balance', f'${end_value:.2f}',
+                       f'${closing_without_drp:.2f} (NO DRP)', delta_color='off')
+            cl3.metric(f'Gain ($)', f'${gain_dollars:.2f}',
+                       f'${dollar_gain_without_drp} (NO DRP)', delta_color='off')
+            cl4.metric(f'Gain (%)', f'{percentage_gain:.2f}%',
+                       f'{percent_gain_wihtout_drp:.2f}% (NO DRP)', delta_color='off')
 
             # Add the investment without DRP to the DataFrame
             investment_without_drp_df['Investment Without DRP'] = investment_without_drp.values
@@ -165,13 +170,14 @@ def calculate_return(tickers):
 
             # Plot the comparison
             fig_comparison = px.line(investment_without_drp_df, x='Date', y=['Investment Without DRP', 'Investment With DRP'],
-                                    labels={'value': 'Investment Value', 'variable': 'DRP'},
-                                    title=f'Investment Performance Comparison for {ticker.upper()} (with and without DRP)',
-                                    color_discrete_map={'Investment Without DRP': 'blue', 'Investment With DRP': 'orange'})
+                                     labels={'value': 'Investment Value',
+                                             'variable': 'DRP'},
+                                     title=f'Investment Performance Comparison for {ticker.upper()} (with and without DRP)',
+                                     color_discrete_map={'Investment Without DRP': 'blue', 'Investment With DRP': 'orange'})
 
             # Add legend and labels
             fig_comparison.update_layout(legend_title_text='', xaxis_title='Date', yaxis_title='Investment Value ($)',
-                                        legend=dict(title='', orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
+                                         legend=dict(title='', orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
 
             # Show the comparison plot
             st.plotly_chart(fig_comparison)
